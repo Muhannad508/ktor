@@ -102,16 +102,16 @@ internal suspend fun readResponse(
     val rawResponse = parseResponse(input)
         ?: throw EOFException("Failed to parse HTTP response: unexpected EOF")
 
+    callContext[Job]!!.invokeOnCompletion {
+        rawResponse.headers.release()
+    }
+
     val status = HttpStatusCode(rawResponse.status, rawResponse.statusText.toString())
     val contentLength = rawResponse.headers[HttpHeaders.ContentLength]?.toString()?.toLong() ?: -1L
     val transferEncoding = rawResponse.headers[HttpHeaders.TransferEncoding]
     val connectionType = ConnectionOptions.parse(rawResponse.headers[HttpHeaders.Connection])
 
-    val headers = buildHeaders {
-        appendAll(CIOHeaders(rawResponse.headers))
-        rawResponse.headers.release()
-    }
-
+    val headers = CIOHeaders(rawResponse.headers)
     val version = HttpProtocolVersion.parse(rawResponse.version)
 
     if (status == HttpStatusCode.SwitchingProtocols) {

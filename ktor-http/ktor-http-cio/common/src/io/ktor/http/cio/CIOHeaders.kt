@@ -25,7 +25,8 @@ public class CIOHeaders(private val headers: HttpHeadersMap) : Headers {
     override fun names(): Set<String> = names
     override fun get(name: String): String? = headers[name]?.toString()
 
-    override fun getAll(name: String): List<String>? = headers.getAll(name).map { it.toString() }.toList().takeIf { it.isNotEmpty() }
+    override fun getAll(name: String): List<String>? =
+        headers.getAll(name).map { it.toString() }.toList().takeIf { it.isNotEmpty() }
 
     override fun isEmpty(): Boolean = headers.size == 0
     override fun entries(): Set<Map.Entry<String, List<String>>> {
